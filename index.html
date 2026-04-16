@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Pingu's Gun Shop</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;600;700&family=Share+Tech+Mono&display=swap');
+:root{--bg:#0d0e0f;--surface:#161819;--surface2:#1e2022;--accent:#c8a84b;--accent2:#e8c96a;--red:#cc2200;--text:#d4d6d8;--muted:#6b7075;--border:#2a2d30;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Rajdhani',sans-serif;font-size:16px;overflow-x:hidden;}
+
+.topbar{background:#0a0a0b;border-bottom:1px solid var(--border);padding:6px 40px;display:flex;justify-content:space-between;align-items:center;font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--muted);}
+.topbar .accent{color:var(--accent);}
+
+nav{background:var(--surface);border-bottom:2px solid var(--accent);padding:0 40px;display:flex;align-items:center;position:sticky;top:0;z-index:200;}
+.nav-logo{display:flex;align-items:center;gap:14px;padding:10px 24px 10px 0;border-right:1px solid var(--border);margin-right:20px;}
+.nav-logo img{width:52px;height:52px;object-fit:cover;border:2px solid var(--accent);border-radius:4px;}
+.nav-logo .name{font-family:'Bebas Neue',sans-serif;font-size:22px;color:#fff;letter-spacing:1px;}
+.nav-logo .tagline{font-size:11px;color:var(--accent);font-family:'Share Tech Mono',monospace;letter-spacing:1px;}
+.nav-links{display:flex;gap:4px;}
+.nav-links a{color:var(--text);text-decoration:none;padding:18px 16px;font-size:13px;font-weight:700;letter-spacing:1px;text-transform:uppercase;border-bottom:3px solid transparent;transition:all .2s;cursor:pointer;}
+.nav-links a:hover,.nav-links a.active{color:var(--accent);border-bottom-color:var(--accent);}
+.nav-right{margin-left:auto;display:flex;align-items:center;gap:14px;}
+.nav-currency{font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--accent);background:rgba(200,168,75,.1);border:1px solid rgba(200,168,75,.3);padding:4px 10px;border-radius:3px;}
+.btn-cart{background:var(--accent);color:#000;border:none;padding:8px 18px;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1px;cursor:pointer;border-radius:3px;transition:background .2s;}
+.btn-cart:hover{background:var(--accent2);}
+
+.cart-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:300;opacity:0;pointer-events:none;transition:opacity .3s;}
+.cart-overlay.open{opacity:1;pointer-events:all;}
+.cart-sidebar{position:fixed;top:0;right:0;bottom:0;width:400px;background:var(--surface);border-left:2px solid var(--accent);z-index:301;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .3s;}
+.cart-sidebar.open{transform:translateX(0);}
+.cart-header{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.cart-header-title{font-family:'Bebas Neue',sans-serif;font-size:28px;color:#fff;}
+.cart-header-title span{color:var(--accent);}
+.close-btn{background:transparent;border:1px solid var(--border);color:var(--muted);width:34px;height:34px;border-radius:3px;cursor:pointer;font-size:18px;transition:all .2s;display:flex;align-items:center;justify-content:center;}
+.close-btn:hover{border-color:var(--accent);color:var(--accent);}
+.cart-body{flex:1;overflow-y:auto;padding:16px 24px;}
+.cart-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:12px;color:var(--muted);}
+.cart-empty .big{font-size:64px;}
+.cart-empty .lbl{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;}
+.cart-empty .sub{font-family:'Share Tech Mono',monospace;font-size:11px;text-align:center;line-height:1.6;}
+.cart-item{display:flex;gap:14px;padding:14px 0;border-bottom:1px solid var(--border);}
+.ci-icon{font-size:32px;width:48px;height:48px;background:var(--surface2);border:1px solid var(--border);border-radius:3px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.ci-info{flex:1;}
+.ci-maker{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:1px;}
+.ci-name{font-family:'Bebas Neue',sans-serif;font-size:18px;color:#fff;letter-spacing:.5px;}
+.ci-price{font-family:'Share Tech Mono',monospace;font-size:13px;color:var(--accent);margin-top:2px;}
+.ci-controls{display:flex;align-items:center;gap:8px;margin-top:8px;}
+.qty-btn{background:var(--surface2);border:1px solid var(--border);color:var(--text);width:26px;height:26px;border-radius:2px;cursor:pointer;font-size:16px;transition:all .2s;display:flex;align-items:center;justify-content:center;line-height:1;}
+.qty-btn:hover{border-color:var(--accent);color:var(--accent);}
+.qty-num{font-family:'Share Tech Mono',monospace;font-size:13px;color:#fff;min-width:20px;text-align:center;}
+.ci-remove{background:transparent;border:none;color:var(--muted);cursor:pointer;font-size:12px;margin-left:auto;font-family:'Share Tech Mono',monospace;transition:color .2s;letter-spacing:1px;}
+.ci-remove:hover{color:var(--red);}
+.cart-footer{padding:20px 24px;border-top:2px solid var(--border);flex-shrink:0;}
+.cart-total-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+.cart-total-label{font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--muted);letter-spacing:1px;}
+.cart-total-val{font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--accent);}
+.cart-total-val small{font-family:'Share Tech Mono',monospace;font-size:13px;color:var(--muted);}
+.nootlock-note{font-family:'Share Tech Mono',monospace;font-size:10px;color:rgba(200,168,75,.5);margin-bottom:14px;line-height:1.5;}
+.btn-checkout{width:100%;background:var(--accent);color:#000;border:none;padding:14px;font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;cursor:pointer;border-radius:3px;transition:background .2s;}
+.btn-checkout:hover{background:var(--accent2);}
+.btn-clear{width:100%;background:transparent;color:var(--muted);border:1px solid var(--border);padding:8px;font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:1px;cursor:pointer;border-radius:3px;margin-top:8px;transition:all .2s;}
+.btn-clear:hover{border-color:var(--red);color:var(--red);}
+
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:500;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s;}
+.modal-overlay.open{opacity:1;pointer-events:all;}
+.modal{background:var(--surface);border:2px solid var(--accent);border-radius:6px;width:520px;max-width:95vw;max-height:90vh;overflow-y:auto;display:flex;flex-direction:column;}
+.modal-hdr{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.modal-hdr-title{font-family:'Bebas Neue',sans-serif;font-size:26px;color:#fff;letter-spacing:1px;}
+.modal-hdr-title span{color:var(--accent);}
+.modal-bdy{padding:24px;}
+.disc-box{background:rgba(204,34,0,.08);border:1px solid rgba(204,34,0,.4);border-left:4px solid var(--red);border-radius:3px;padding:14px 16px;margin-bottom:24px;}
+.disc-title{font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--red);letter-spacing:1px;margin-bottom:6px;}
+.disc-text{font-family:'Share Tech Mono',monospace;font-size:11px;color:#e07070;line-height:1.7;}
+.form-sec{margin-bottom:22px;}
+.form-sec-lbl{font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--accent);letter-spacing:1px;margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid var(--border);}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+.form-row.full{grid-template-columns:1fr;}
+.form-grp{display:flex;flex-direction:column;gap:5px;}
+.form-grp label{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;}
+.form-grp input,.form-grp select{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:9px 12px;border-radius:3px;font-family:'Rajdhani',sans-serif;font-size:15px;outline:none;transition:border-color .2s;}
+.form-grp input:focus,.form-grp select:focus{border-color:var(--accent);}
+.form-grp input::placeholder{color:var(--muted);}
+.form-grp select option{background:var(--surface2);}
+.order-sum{background:var(--bg);border:1px solid var(--border);border-radius:3px;padding:16px;margin-bottom:20px;}
+.order-sum-title{font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--accent);letter-spacing:1px;margin-bottom:12px;}
+.order-line{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);padding:4px 0;border-bottom:1px solid rgba(255,255,255,.04);}
+.order-line.tot{color:#fff;font-family:'Bebas Neue',sans-serif;font-size:18px;border-bottom:none;margin-top:6px;padding-top:8px;border-top:1px solid var(--border);}
+.order-line.tot span:last-child{color:var(--accent);}
+.btn-place{width:100%;background:var(--accent);color:#000;border:none;padding:14px;font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;cursor:pointer;border-radius:3px;transition:background .2s;}
+.btn-place:hover{background:var(--accent2);}
+.confirm-wrap{text-align:center;padding:20px 0;}
+.confirm-wrap .big{font-size:72px;margin-bottom:16px;}
+.confirm-title{font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--accent);letter-spacing:1px;margin-bottom:8px;}
+.confirm-num{font-family:'Share Tech Mono',monospace;font-size:13px;color:var(--accent);background:rgba(200,168,75,.1);border:1px solid rgba(200,168,75,.3);padding:8px 16px;border-radius:3px;display:inline-block;margin-bottom:8px;}
+.confirm-ship{font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--muted);margin-bottom:16px;}
+.confirm-ship span{color:var(--accent);}
+.confirm-sub{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:1px;line-height:1.8;margin-bottom:20px;}
+.btn-done{background:var(--accent);color:#000;border:none;padding:10px 28px;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:1px;cursor:pointer;border-radius:3px;}
+.btn-done:hover{background:var(--accent2);}
+
+.sched-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:500;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s;}
+.sched-overlay.open{opacity:1;pointer-events:all;}
+.sched-modal{background:var(--surface);border:2px solid var(--accent);border-radius:6px;width:95vw;max-width:1100px;max-height:90vh;display:flex;flex-direction:column;}
+.sched-hdr{padding:18px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.sched-hdr-title{font-family:'Bebas Neue',sans-serif;font-size:26px;color:#fff;letter-spacing:1px;}
+.sched-hdr-title span{color:var(--accent);}
+.sched-hdr-sub{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--muted);margin-top:2px;letter-spacing:1px;}
+.sched-body{overflow:auto;padding:20px 24px;flex:1;}
+.sched-table{width:100%;border-collapse:collapse;min-width:700px;}
+.sched-table th{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1px;color:var(--accent);padding:10px 8px;text-align:center;border-bottom:2px solid var(--accent);background:var(--bg);position:sticky;top:0;z-index:1;}
+.sched-table th.time-col{color:var(--muted);font-size:13px;text-align:left;width:80px;}
+.sched-table td{padding:6px 8px;text-align:center;border-bottom:1px solid rgba(255,255,255,.04);font-family:'Share Tech Mono',monospace;font-size:12px;}
+.sched-table td.time-cell{color:var(--muted);text-align:left;font-size:11px;letter-spacing:1px;white-space:nowrap;}
+.sched-table tr:hover td{background:rgba(200,168,75,.04);}
+.slot-taken{color:#ff4444;font-weight:700;letter-spacing:1px;}
+.slot-btn{background:transparent;border:1px solid #44cc66;color:#44cc66;font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:1px;padding:3px 8px;border-radius:2px;cursor:pointer;transition:all .2s;}
+.slot-btn:hover{background:rgba(68,204,102,.15);}
+
+.book-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:600;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s;}
+.book-overlay.open{opacity:1;pointer-events:all;}
+
+.hero{position:relative;background:linear-gradient(135deg,#0d0e0f 0%,#161a1c 50%,#0a0c0d 100%);border-bottom:2px solid var(--border);overflow:hidden;padding:60px 40px;display:flex;align-items:center;gap:60px;}
+.hero::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 40px,rgba(200,168,75,.03) 40px,rgba(200,168,75,.03) 41px),repeating-linear-gradient(90deg,transparent,transparent 40px,rgba(200,168,75,.03) 40px,rgba(200,168,75,.03) 41px);}
+.hero-logo{flex-shrink:0;position:relative;z-index:1;}
+.hero-logo img{width:280px;height:280px;object-fit:cover;border:3px solid var(--accent);border-radius:6px;box-shadow:0 0 40px rgba(200,168,75,.25),0 0 80px rgba(200,168,75,.1);}
+.hero-text{position:relative;z-index:1;}
+.hero-eyebrow{font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--accent);letter-spacing:3px;text-transform:uppercase;margin-bottom:10px;}
+.hero-title{font-family:'Bebas Neue',sans-serif;font-size:72px;line-height:.95;color:#fff;letter-spacing:2px;text-shadow:3px 3px 0 rgba(0,0,0,.5);margin-bottom:8px;}
+.hero-title span{color:var(--accent);}
+.hero-sub{font-family:'Share Tech Mono',monospace;font-size:18px;color:var(--muted);letter-spacing:3px;margin-bottom:18px;}
+.hero-desc{font-size:17px;color:var(--text);line-height:1.6;max-width:500px;margin-bottom:28px;}
+.hero-desc strong{color:var(--accent);}
+.hero-btns{display:flex;gap:14px;}
+.btn-primary{background:var(--accent);color:#000;border:none;padding:12px 28px;font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1px;cursor:pointer;border-radius:3px;transition:all .2s;}
+.btn-primary:hover{background:var(--accent2);transform:translateY(-1px);}
+.btn-secondary{background:transparent;color:var(--accent);border:2px solid var(--accent);padding:12px 28px;font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1px;cursor:pointer;border-radius:3px;transition:all .2s;}
+.btn-secondary:hover{background:rgba(200,168,75,.1);}
+.hero-stats{display:flex;gap:32px;margin-top:28px;padding-top:24px;border-top:1px solid var(--border);}
+.stat-num{font-family:'Bebas Neue',sans-serif;font-size:32px;color:var(--accent);line-height:1;}
+.stat-lbl{font-size:11px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;}
+
+section{padding:60px 40px;}
+.sec-eyebrow{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--accent);letter-spacing:3px;text-transform:uppercase;margin-bottom:6px;}
+.sec-title{font-family:'Bebas Neue',sans-serif;font-size:40px;color:#fff;letter-spacing:1px;}
+.sec-title span{color:var(--accent);}
+.sec-div{width:60px;height:3px;background:var(--accent);margin-top:10px;margin-bottom:36px;}
+
+.categories{background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border);}
+.cat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
+.cat-card{background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:28px 20px;text-align:center;cursor:pointer;transition:all .25s;position:relative;overflow:hidden;}
+.cat-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;background:var(--accent);transform:scaleX(0);transition:transform .25s;}
+.cat-card:hover{border-color:var(--accent);transform:translateY(-3px);}
+.cat-card:hover::after{transform:scaleX(1);}
+.cat-icon{font-size:36px;margin-bottom:12px;}
+.cat-name{font-family:'Bebas Neue',sans-serif;font-size:22px;color:#fff;letter-spacing:1px;}
+.cat-count{font-size:12px;color:var(--muted);font-family:'Share Tech Mono',monospace;margin-top:4px;}
+.cat-tag{display:inline-block;margin-top:10px;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--accent);border:1px solid rgba(200,168,75,.4);padding:2px 8px;border-radius:2px;}
+
+.products{background:var(--bg);}
+.product-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+.product-card{background:var(--surface);border:1px solid var(--border);border-radius:4px;overflow:hidden;transition:all .25s;}
+.product-card:hover{border-color:var(--accent);transform:translateY(-3px);box-shadow:0 8px 30px rgba(0,0,0,.4);}
+.prod-img{height:160px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:60px;position:relative;border-bottom:1px solid var(--border);}
+.prod-badge{position:absolute;top:10px;left:10px;font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;padding:3px 8px;border-radius:2px;}
+.b-sig{background:var(--accent);color:#000;}
+.b-new{background:#2a6e3a;color:#7fff9a;}
+.b-rare{background:#6b2a8a;color:#e0a0ff;}
+.b-pingu{background:var(--red);color:#fff;}
+.prod-info{padding:18px;}
+.prod-maker{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;}
+.prod-name{font-family:'Bebas Neue',sans-serif;font-size:22px;color:#fff;letter-spacing:.5px;line-height:1.1;margin-bottom:6px;}
+.prod-desc{font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:14px;}
+.prod-specs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
+.spec-tag{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--accent);border:1px solid rgba(200,168,75,.3);padding:2px 7px;border-radius:2px;}
+.prod-footer{display:flex;align-items:center;justify-content:space-between;}
+.prod-price{font-family:'Bebas Neue',sans-serif;font-size:26px;color:var(--accent);line-height:1;}
+.prod-price small{font-size:13px;color:var(--muted);font-family:'Share Tech Mono',monospace;letter-spacing:1px;}
+.btn-add{background:var(--accent);color:#000;border:none;padding:8px 16px;font-family:'Bebas Neue',sans-serif;font-size:16px;cursor:pointer;border-radius:3px;transition:background .2s;}
+.btn-add:hover{background:var(--accent2);}
+
+.gundo-section{background:linear-gradient(135deg,#0a0c0d 0%,#131618 100%);border-top:2px solid var(--accent);border-bottom:2px solid var(--accent);position:relative;overflow:hidden;padding:60px 40px;}
+.gundo-section::before{content:'GUNDO';position:absolute;right:-20px;top:50%;transform:translateY(-50%);font-family:'Bebas Neue',sans-serif;font-size:200px;color:rgba(200,168,75,.04);line-height:1;pointer-events:none;white-space:nowrap;}
+.gundo-inner{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;}
+.gundo-badge{display:inline-block;margin-bottom:14px;background:rgba(200,168,75,.1);border:1px solid rgba(200,168,75,.4);font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--accent);letter-spacing:2px;padding:4px 12px;border-radius:2px;}
+.gundo-title{font-family:'Bebas Neue',sans-serif;font-size:52px;color:#fff;line-height:.95;margin-bottom:8px;}
+.gundo-title span{color:var(--accent);}
+.gundo-sub{font-family:'Share Tech Mono',monospace;font-size:14px;color:var(--muted);letter-spacing:2px;margin-bottom:20px;}
+.gundo-desc{font-size:16px;color:var(--text);line-height:1.7;margin-bottom:28px;}
+.nootlock-box{background:rgba(200,168,75,.06);border:1px solid rgba(200,168,75,.3);border-radius:4px;padding:16px 20px;}
+.nootlock-lbl{font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--accent);letter-spacing:2px;margin-bottom:6px;}
+.nootlock-desc{font-size:13px;color:var(--muted);line-height:1.6;}
+.pillars{display:flex;flex-direction:column;gap:16px;}
+.pillar{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:3px;padding:18px 20px;}
+.pillar-num{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:2px;margin-bottom:4px;}
+.pillar-name{font-family:'Bebas Neue',sans-serif;font-size:24px;color:#fff;letter-spacing:1px;margin-bottom:4px;}
+.pillar-desc{font-size:13px;color:var(--muted);line-height:1.5;}
+.pm114-feat{margin-top:28px;background:var(--surface);border:1px solid var(--accent);border-radius:4px;padding:20px;display:flex;align-items:center;gap:18px;}
+.pm114-lbl{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:2px;margin-bottom:2px;}
+.pm114-name{font-family:'Bebas Neue',sans-serif;font-size:26px;color:#fff;letter-spacing:1px;}
+.pm114-desc{font-size:13px;color:var(--muted);}
+
+footer{background:#080909;border-top:2px solid var(--border);padding:40px 40px 20px;}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:40px;margin-bottom:32px;}
+.footer-logo{display:flex;align-items:center;gap:12px;margin-bottom:14px;}
+.footer-logo img{width:44px;height:44px;object-fit:cover;border:1px solid var(--accent);border-radius:3px;}
+.footer-logo-txt{font-family:'Bebas Neue',sans-serif;font-size:20px;color:#fff;letter-spacing:1px;}
+.footer-desc{font-size:13px;color:var(--muted);line-height:1.7;max-width:300px;}
+.footer-vorh{margin-top:14px;font-family:'Share Tech Mono',monospace;font-size:11px;color:rgba(200,168,75,.5);letter-spacing:1px;}
+.footer-col h4{font-family:'Bebas Neue',sans-serif;font-size:18px;color:#fff;letter-spacing:1px;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--border);}
+.footer-col ul{list-style:none;}
+.footer-col li{padding:5px 0;font-size:13px;color:var(--muted);border-bottom:1px solid rgba(255,255,255,.04);cursor:pointer;transition:color .2s;}
+.footer-col li:hover{color:var(--accent);}
+.footer-bottom{display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--border);padding-top:18px;font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--muted);}
+.footer-bottom .accent{color:var(--accent);}
+
+.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--surface);border:1px solid var(--accent);border-left:4px solid var(--accent);padding:12px 20px;border-radius:4px;font-family:'Rajdhani',sans-serif;font-weight:600;color:#fff;font-size:15px;box-shadow:0 8px 30px rgba(0,0,0,.5);opacity:0;transition:all .3s;z-index:999;white-space:nowrap;}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <span>🏳️ <span class="accent">КОРОЛЕВСТВО ФОРХАНГИЯ</span> — Официальный лицензированный торговец оружием</span>
+  <span>ВАЛЮТА: <span class="accent">VHD (Форхангийский динар)</span> &nbsp;|&nbsp; ДОСТАВКА ПО ВСЕЙ ФОРХАНГИИ</span>
+</div>
+
+<nav>
+  <div class="nav-logo">
+    <img id="navLogo" src="" alt="Pingu"/>
+    <div>
+      <div class="name">Pingu's Gun Shop</div>
+      <div class="tagline">ЛУЧШЕЕ ВЫСОКОКАЧЕСТВЕННОЕ ОРУЖИЕ</div>
+    </div>
+  </div>
+  <div class="nav-links">
+    <a class="active">Home</a>
+    <a onclick="document.getElementById('categories').scrollIntoView({behavior:'smooth'})">Categories</a>
+    <a onclick="document.getElementById('gundo').scrollIntoView({behavior:'smooth'})">Gundo</a>
+    <a onclick="document.getElementById('gundo').scrollIntoView({behavior:'smooth'})">NOOTLOCK™ Security</a>
+    <a>About</a>
+  </div>
+  <div class="nav-right">
+    <div class="nav-currency">Balance: 0.00 VHD</div>
+    <button class="btn-cart" onclick="toggleCart()">🛒 CART (<span id="cartCount">0</span>)</button>
+  </div>
+</nav>
+
+<!-- CART -->
+<div class="cart-overlay" id="cartOverlay" onclick="toggleCart()"></div>
+<div class="cart-sidebar" id="cartSidebar">
+  <div class="cart-header">
+    <div class="cart-header-title">YOUR <span>CART</span></div>
+    <button class="close-btn" onclick="toggleCart()">✕</button>
+  </div>
+  <div class="cart-body" id="cartBody"></div>
+  <div class="cart-footer" id="cartFooter" style="display:none">
+    <div class="cart-total-row">
+      <div class="cart-total-label">Total</div>
+      <div class="cart-total-val" id="cartTotal">0 <small>VHD</small></div>
+    </div>
+    <div class="nootlock-note">✅ All premium items include NOOTLOCK™ anti-theft security by Pingu.</div>
+    <button class="btn-checkout" onclick="openCheckout()">CHECKOUT</button>
+    <button class="btn-clear" onclick="clearCart()">CLEAR CART</button>
+  </div>
+</div>
+
+<!-- CHECKOUT MODAL -->
+<div class="modal-overlay" id="checkoutOverlay">
+  <div class="modal">
+    <div class="modal-hdr">
+      <div class="modal-hdr-title">CHECKOUT — <span>PINGU'S GUN SHOP</span></div>
+      <button class="close-btn" onclick="closeCheckout()">✕</button>
+    </div>
+    <div class="modal-bdy" id="checkoutBody"></div>
+  </div>
+</div>
+
+<!-- SCHEDULE MODAL -->
+<div class="sched-overlay" id="schedOverlay">
+  <div class="sched-modal">
+    <div class="sched-hdr">
+      <div>
+        <div class="sched-hdr-title">🥋 GUNDO <span>LESSON SCHEDULE</span></div>
+        <div class="sched-hdr-sub">// TAUGHT BY PINGU — GRANDMASTER OF GUNDO — KINGDOM OF VORHANGIA</div>
+      </div>
+      <button class="close-btn" onclick="closeSchedule()">✕</button>
+    </div>
+    <div class="sched-body">
+      <table class="sched-table" id="schedTable"></table>
+    </div>
+  </div>
+</div>
+
+<!-- BOOKING MODAL -->
+<div class="book-overlay" id="bookOverlay">
+  <div class="modal" style="max-width:500px">
+    <div class="modal-hdr">
+      <div class="modal-hdr-title">BOOK <span>GUNDO LESSON</span></div>
+      <button class="close-btn" onclick="closeBooking()">✕</button>
+    </div>
+    <div class="modal-bdy" id="bookingBody"></div>
+  </div>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-logo"><img id="heroLogo" src="" alt="Pingu's Gun Shop"/></div>
+  <div class="hero-text">
+    <div class="hero-eyebrow">// Официальный поставщик оружия Форхангии</div>
+    <div class="hero-title">PINGU'S<br/><span>GUN SHOP</span></div>
+    <div class="hero-sub">ЛУЧШЕЕ ВЫСОКОКАЧЕСТВЕННОЕ ОРУЖИЕ</div>
+    <div class="hero-desc">Ruled by <strong>Pingu</strong>, Gundo Grandmaster &amp; NOOTLOCK™ Inventor. The most feared gunsmith in the Kingdom of Vorhangia. Forged in clay, hardened in battle. <strong>NOOT NOOT.</strong></div>
+    <div class="hero-btns">
+      <button class="btn-primary" onclick="document.getElementById('categories').scrollIntoView({behavior:'smooth'})">SHOP NOW</button>
+      <button class="btn-secondary" onclick="document.getElementById('gundo').scrollIntoView({behavior:'smooth'})">LEARN GUNDO</button>
+    </div>
+    <div class="hero-stats">
+      <div><div class="stat-num">47+</div><div class="stat-lbl">Firearms</div></div>
+      <div><div class="stat-num">3</div><div class="stat-lbl">Gundo Pillars</div></div>
+      <div><div class="stat-num">1</div><div class="stat-lbl">True King</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- CATEGORIES -->
+<section class="categories" id="categories">
+  <div class="sec-eyebrow">// Каталог продукции</div>
+  <div class="sec-title">SHOP BY <span>CATEGORY</span></div>
+  <div class="sec-div"></div>
+  <div class="cat-grid">
+    <div class="cat-card"><div class="cat-icon">🔫</div><div class="cat-name">Pistols</div><div class="cat-count">12 ITEMS</div><div class="cat-tag">Includes PM 114</div></div>
+    <div class="cat-card"><div class="cat-icon">🪖</div><div class="cat-name">Battle Rifles</div><div class="cat-count">9 ITEMS</div><div class="cat-tag">R-60 Vanguard</div></div>
+    <div class="cat-card"><div class="cat-icon">🎯</div><div class="cat-name">Sniper Rifles</div><div class="cat-count">7 ITEMS</div><div class="cat-tag">R-70 SASS</div></div>
+    <div class="cat-card"><div class="cat-icon">🐧</div><div class="cat-name">Pingu Specials</div><div class="cat-count">5 ITEMS</div><div class="cat-tag">🔥 Absurdist Tier</div></div>
+  </div>
+</section>
+
+<!-- PRODUCTS -->
+<section class="products" id="products">
+  <div class="sec-eyebrow">// Рекомендуемые товары</div>
+  <div class="sec-title">FEATURED <span>ARSENAL</span></div>
+  <div class="sec-div"></div>
+  <div class="product-grid" id="productGrid"></div>
+</section>
+
+<!-- GUNDO -->
+<section class="gundo-section" id="gundo">
+  <div class="gundo-inner">
+    <div>
+      <div class="gundo-badge">// MARTIAL ARTS DIVISION</div>
+      <div class="gundo-title">THE ART OF<br/><span>GUNDO</span></div>
+      <div class="gundo-sub">PRECISION PISTOL COMBAT // ВОСПИТАННЫЙ ПИНГУ</div>
+      <div class="gundo-desc">Gundo is the sacred precision pistol-based martial art of the Kingdom of Vorhangia, developed and mastered by Pingu himself. Built on three immovable pillars, it demands discipline of body, trigger, and soul.</div>
+      <div class="nootlock-box">
+        <div class="nootlock-lbl">🔒 NOOTLOCK™ — Anti-Theft Security</div>
+        <div class="nootlock-desc">Invented by Pingu. A proprietary anti-theft locking mechanism for firearms. NOOTLOCK™-equipped weapons cannot be discharged, disassembled, or stolen without the registered owner's override. Mandatory on all Pingu's Gun Shop premium tier purchases. NOOT NOOT.</div>
+      </div>
+      <div class="pm114-feat">
+        <div style="font-size:48px">🔫</div>
+        <div>
+          <div class="pm114-lbl">// Signature Weapon</div>
+          <div class="pm114-name">Psalm &amp; Matthew PM 114</div>
+          <div class="pm114-desc">The only weapon endorsed for Gundo practice. All three pillars demand it.</div>
+        </div>
+      </div>
+      <div style="margin-top:20px">
+        <button class="btn-primary" onclick="openSchedule()" style="width:100%;font-size:18px;padding:14px;letter-spacing:2px">🥋 SEE GUNDO LESSONS</button>
+      </div>
+    </div>
+    <div class="pillars">
+      <div class="pillar"><div class="pillar-num">PILLAR I</div><div class="pillar-name">LISTO</div><div class="pillar-desc">Total readiness. Mind, stance, and weapon unified before the moment of engagement. The Gundo practitioner who hesitates has already lost.</div></div>
+      <div class="pillar"><div class="pillar-num">PILLAR II</div><div class="pillar-name">MANO FIEL</div><div class="pillar-desc">The Faithful Hand. Absolute trigger discipline and barrel control. The PM 114 becomes an extension of will, not weapon.</div></div>
+      <div class="pillar"><div class="pillar-num">PILLAR III</div><div class="pillar-name">ESPÍRITU QUIETO</div><div class="pillar-desc">The Quiet Spirit. Inner stillness under pressure. Breath regulation, emotional detachment, and the patience to wait for the perfect shot.</div></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-grid">
+    <div>
+      <div class="footer-logo"><img id="footerLogo" src="" alt="Pingu"/><div class="footer-logo-txt">PINGU'S GUN SHOP</div></div>
+      <div class="footer-desc">The official licensed firearms dealer of the Kingdom of Vorhangia. Under the sovereign blessing of Deus-Bendicat. Jesus Christ is the true King. Pingu is just the best gunsmith.</div>
+      <div class="footer-vorh">ПОД БЛАГОСЛОВЕНИЕМ ДЕУС-БЕНДИКАТА // EST. KINGDOM OF VORHANGIA</div>
+    </div>
+    <div class="footer-col"><h4>Shop</h4><ul><li>Pistols</li><li>Battle Rifles</li><li>Sniper Rifles</li><li>Pingu Specials</li><li>Accessories</li></ul></div>
+    <div class="footer-col"><h4>Info</h4><ul><li>About Pingu</li><li>Gundo Training</li><li>NOOTLOCK™ Registry</li><li>Psalm &amp; Matthew</li><li>Vorhangian Law</li></ul></div>
+  </div>
+  <div class="footer-bottom">
+    <span>© <span class="accent">JacobEArts</span> — All rights reserved. Kingdom of Vorhangia.</span>
+    <span>ЛУЧШЕЕ ВЫСОКОКАЧЕСТВЕННОЕ ОРУЖИЕ &nbsp;|&nbsp; <span class="accent">NOOT NOOT.</span></span>
+  </div>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── HELPERS ──────────────────────────────────────────────
+function isReallyEmpty(val) {
+  return !val.replace(/[\s\u00a0\u2800-\u28ff\u200b-\u200f\u2060\ufeff]/g, '');
+}
+
+function allInputsFilled(selector) {
+  var ok = true;
+  document.querySelectorAll(selector).forEach(function(inp) {
+    if (isReallyEmpty(inp.value)) ok = false;
+  });
+  return ok;
+}
+
+function showToast(msg) {
+  var t = document.getElementById('toast');
+  t.innerHTML = msg;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(function() { t.classList.remove('show'); }, 3000);
+}
+
+function randomShipDate() {
+  var months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  return months[Math.floor(Math.random()*12)] + ' ' + (Math.floor(Math.random()*28)+1);
+}
+
+function discBox() {
+  return '<div class="disc-box"><div class="disc-title">⚠️ FICTIONAL STORE DISCLAIMER</div>' +
+    '<div class="disc-text">THIS IS A FICTIONAL STOREFRONT for the Kingdom of Vorhangia.<br/>' +
+    'DO NOT enter your real credit card number.<br/>DO NOT enter your real home address.<br/>' +
+    'No purchases are real. No data is collected or processed.<br/>' +
+    'Use made-up details only. — <strong style="color:var(--accent)">JacobEArts / Pingu\'s Gun Shop</strong></div></div>';
+}
+
+function paymentFields() {
+  return '<div class="form-sec"><div class="form-sec-lbl">💳 Payment (FICTIONAL)</div>' +
+    '<div class="form-row full"><div class="form-grp"><label>Cardholder Name</label><input type="text" placeholder="Use a fake name!"/></div></div>' +
+    '<div class="form-row full"><div class="form-grp"><label>Card Number — USE FAKE</label><input type="text" placeholder="0000 0000 0000 0000" maxlength="19"/></div></div>' +
+    '<div class="form-row"><div class="form-grp"><label>Expiry</label><input type="text" placeholder="MM/YY" maxlength="5"/></div>' +
+    '<div class="form-grp"><label>CVV</label><input type="text" placeholder="000" maxlength="3"/></div></div></div>';
+}
+
+// ── PRODUCTS ─────────────────────────────────────────────
+var PRODUCTS = [
+  {id:1,icon:'🔫',badge:'b-sig',badgeTxt:'GUNDO SIG.',maker:'Psalm & Matthew Firearms',name:'PM 114',desc:'Semi-auto precision sidearm. 35 DMG base, 505 RPM, 20+1 capacity. Armor-piercing with 1.7× headshot multiplier. The sacred sidearm of Gundo — Mano Fiel demands it.',specs:['9mm','Semi-Auto','505 RPM','20+1 Cap.','35 Base DMG','Armor Pierce'],price:1200},
+  {id:2,icon:'🎯',badge:'b-rare',badgeTxt:'RARE',maker:'Psalm & Matthew Firearms',name:'R-70 SASS',desc:'Semi/bolt-action convertible .50 BMG long rifle. Espíritu Quieto embodied.',specs:['.50 BMG','Semi/Bolt','Convertible','Long Range'],price:8750},
+  {id:3,icon:'🪖',badge:'b-new',badgeTxt:'NEW',maker:'Psalm & Matthew Firearms',name:'R-60 Vanguard',desc:'High-capacity battle rifle with muzzle brake reducing recoil up to 200%. Foldable stock for compact carry. Select fire with semi, full-auto, and burst modes. Listo made manifest.',specs:['.308 Win','Semi/Full/Burst','3000 RPM','60+1 Cap.','Muzzle Brake','Foldable Stock'],price:4400},
+  {id:7,icon:'🔫',badge:'b-rare',badgeTxt:'P&M DIVISION',maker:'Psalm & Matthew Firearms Division',name:'PM WWest Thrwbk 19',desc:'Top-break single-action revolver with slam-fire capability. Case-hardened steel frame, blued barrel, Vorhangian walnut grip with P&M crest inlay. Optics-ready with integrated Picatinny notches.',specs:['.44 Magnum','SA / Slam-Fire','6-Rd Cylinder','Top-Break','5.5" Barrel','Optics Ready'],price:3300},
+  {id:4,icon:'💥',badge:'b-pingu',badgeTxt:'PINGU SPECIAL',maker:"Pingu's Workshop (Claymation Division)",name:'The Nootzooka',desc:'A rocket launcher carved from Antarctic ice. Fires concentrated NOOT blasts.',specs:['NOOT Caliber','Single-Use*','Absurdist','*maybe'],price:69},
+  {id:5,icon:'🔫',badge:'b-new',badgeTxt:'NEW',maker:'Psalm & Matthew Firearms',name:'PM 77 Compact',desc:'Little brother to the PM 114. Pocket-carry approved for off-duty Gundo practitioners.',specs:['.380 ACP','Compact','CCW Ready','7+1 Cap.'],price:780},
+  {id:6,icon:'🐟',badge:'b-pingu',badgeTxt:'PINGU SPECIAL',maker:"Pingu's Workshop (Culinary Arms Division)",name:'Fish Knife Pro™',desc:'Dual-purpose: debones fish AND defeats enemies.',specs:['Cold Steel','Fish-Proof','NOOTLOCK Req.','Dishwasher Safe'],price:420}
+];
+
+function renderProducts() {
+  document.getElementById('productGrid').innerHTML = PRODUCTS.map(function(p) {
+    return '<div class="product-card"><div class="prod-img">' + p.icon +
+      '<div class="prod-badge ' + p.badge + '">' + p.badgeTxt + '</div></div>' +
+      '<div class="prod-info"><div class="prod-maker">' + p.maker + '</div>' +
+      '<div class="prod-name">' + p.name + '</div>' +
+      '<div class="prod-desc">' + p.desc + '</div>' +
+      '<div class="prod-specs">' + p.specs.map(function(s){return '<span class="spec-tag">'+s+'</span>';}).join('') + '</div>' +
+      '<div class="prod-footer"><div class="prod-price">' + p.price.toLocaleString() + ' <small>VHD</small></div>' +
+      '<button class="btn-add" onclick="addToCart('+p.id+')">ADD</button></div></div></div>';
+  }).join('');
+}
+
+// ── CART ─────────────────────────────────────────────────
+var cart = {};
+
+function addToCart(id) {
+  var p = PRODUCTS.filter(function(x){return x.id===id;})[0];
+  if (!p) return;
+  cart[id] ? cart[id].qty++ : (cart[id] = {product:p, qty:1});
+  updateCartUI();
+  showToast('🐧 ' + p.name + ' added! NOOT NOOT.');
+}
+
+function removeFromCart(id) { delete cart[id]; updateCartUI(); }
+
+function changeQty(id, delta) {
+  if (!cart[id]) return;
+  cart[id].qty += delta;
+  if (cart[id].qty <= 0) delete cart[id];
+  updateCartUI();
+}
+
+function clearCart() { cart = {}; updateCartUI(); showToast('🐧 Cart cleared. NOOT NOOT.'); }
+
+function updateCartUI() {
+  var items = Object.values(cart);
+  var totalQty = items.reduce(function(s,x){return s+x.qty;},0);
+  var totalPrice = items.reduce(function(s,x){return s+x.product.price*x.qty;},0);
+  document.getElementById('cartCount').textContent = totalQty;
+  var body = document.getElementById('cartBody');
+  var footer = document.getElementById('cartFooter');
+  if (!items.length) {
+    body.innerHTML = '<div class="cart-empty"><div class="big">🐧</div><div class="lbl">CART IS EMPTY</div><div class="sub">NOOT NOOT.<br/>Add some weapons, soldier.</div></div>';
+    footer.style.display = 'none';
+  } else {
+    footer.style.display = 'block';
+    document.getElementById('cartTotal').innerHTML = totalPrice.toLocaleString() + ' <small>VHD</small>';
+    body.innerHTML = items.map(function(e) {
+      var p = e.product;
+      return '<div class="cart-item"><div class="ci-icon">'+p.icon+'</div><div class="ci-info">' +
+        '<div class="ci-maker">'+p.maker+'</div><div class="ci-name">'+p.name+'</div>' +
+        '<div class="ci-price">'+(p.price*e.qty).toLocaleString()+' VHD</div>' +
+        '<div class="ci-controls">' +
+        '<button class="qty-btn" onclick="changeQty('+p.id+',-1)">−</button>' +
+        '<span class="qty-num">'+e.qty+'</span>' +
+        '<button class="qty-btn" onclick="changeQty('+p.id+',1)">+</button>' +
+        '<button class="ci-remove" onclick="removeFromCart('+p.id+')">REMOVE</button>' +
+        '</div></div></div>';
+    }).join('');
+  }
+}
+
+function toggleCart() {
+  var s = document.getElementById('cartSidebar'), o = document.getElementById('cartOverlay');
+  var open = s.classList.toggle('open');
+  o.classList.toggle('open', open);
+  document.body.style.overflow = open ? 'hidden' : '';
+}
+
+// ── CHECKOUT ─────────────────────────────────────────────
+function openCheckout() {
+  if (!Object.keys(cart).length) { showToast('🐧 Cart is empty! Add some weapons first.'); return; }
+  var items = Object.values(cart);
+  var total = items.reduce(function(s,x){return s+x.product.price*x.qty;},0);
+  var lines = items.map(function(e){
+    return '<div class="order-line"><span>'+e.product.name+' × '+e.qty+'</span><span>'+(e.product.price*e.qty).toLocaleString()+' VHD</span></div>';
+  }).join('');
+
+  document.getElementById('checkoutBody').innerHTML =
+    discBox() +
+    '<div class="form-sec"><div class="form-sec-lbl">📦 Shipping Address</div>' +
+    '<div class="form-row"><div class="form-grp"><label>First Name</label><input type="text" placeholder="e.g. Pingu"/></div>' +
+    '<div class="form-grp"><label>Last Name</label><input type="text" placeholder="e.g. Noot"/></div></div>' +
+    '<div class="form-row full"><div class="form-grp"><label>Street Address</label><input type="text" placeholder="123 Antarctic Ave"/></div></div>' +
+    '<div class="form-row"><div class="form-grp"><label>City</label><input type="text" placeholder="Deus-Bendicat"/></div>' +
+    '<div class="form-grp"><label>Province / Region</label><input type="text" placeholder="Vorhangia Capital"/></div></div>' +
+    '<div class="form-row"><div class="form-grp"><label>Postal Code</label><input type="text" placeholder="VH-0001"/></div>' +
+    '<div class="form-grp"><label>Country</label><select><option>Kingdom of Vorhangia</option><option>Arlandic Confederacy</option><option>Other Realm</option></select></div></div></div>' +
+    paymentFields() +
+    '<div class="order-sum"><div class="order-sum-title">Order Summary</div>' + lines +
+    '<div class="order-line tot"><span>TOTAL</span><span>'+total.toLocaleString()+' VHD</span></div></div>' +
+    '<button class="btn-place" id="placeBtn">🐧 PLACE ORDER — '+total.toLocaleString()+' VHD</button>';
+
+  document.getElementById('placeBtn').addEventListener('click', function() {
+    if (!allInputsFilled('#checkoutBody input')) {
+      showToast('🐧 Put in some (FAKE) Info, soldier!'); return;
+    }
+    var orderNum = 'VH-' + Math.floor(Math.random()*90000+10000);
+    var shipDate = randomShipDate();
+    document.getElementById('checkoutBody').innerHTML =
+      '<div class="confirm-wrap"><div class="big">🐧</div>' +
+      '<div class="confirm-title">ORDER PLACED!</div>' +
+      '<div class="confirm-num">ORDER #'+orderNum+'</div>' +
+      '<div class="confirm-ship">Estimated Shipping Date: <span>'+shipDate+'</span></div>' +
+      '<div class="confirm-sub">NOOT NOOT! Your fictional order has been received.<br/>' +
+      'The Vorhangian Postal Corps will deliver your weapons<br/>via armoured claymation penguin courier.<br/>' +
+      'NOOTLOCK™ security pre-installed on all eligible items.<br/><br/>' +
+      '<span style="color:var(--red)">Remember: this is fictional. No real transaction occurred.</span></div>' +
+      '<button class="btn-done" onclick="finishOrder()">DONE — NOOT NOOT</button></div>';
+  });
+
+  document.getElementById('checkoutOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeCheckout() {
+  document.getElementById('checkoutOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function finishOrder() {
+  cart = {}; updateCartUI(); closeCheckout();
+  document.getElementById('cartSidebar').classList.remove('open');
+  document.getElementById('cartOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+  showToast('🐧 Order complete! NOOT NOOT.');
+}
+
+document.getElementById('checkoutOverlay').addEventListener('click', function(e) {
+  if (e.target === this) closeCheckout();
+});
+
+// ── SCHEDULE ─────────────────────────────────────────────
+var DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+var HOURS = [];
+for (var h = 7; h <= 21; h++) {
+  var ap = h < 12 ? 'AM' : 'PM', d = h <= 12 ? h : h-12;
+  HOURS.push({h:h, label:d+':00 '+ap});
+}
+
+var takenSlots = {};
+(function(){
+  var seed = 42;
+  function rand(){ seed=(seed*1664525+1013904223)&0xffffffff; return (seed>>>0)/4294967296; }
+  DAYS.forEach(function(day){
+    takenSlots[day]={};
+    HOURS.forEach(function(hr){ takenSlots[day][hr.h]=rand()<0.45; });
+  });
+})();
+
+function buildScheduleTable() {
+  var hdr = '<thead><tr><th class="time-col">TIME</th>';
+  DAYS.forEach(function(d){ hdr += '<th>'+d.substring(0,3).toUpperCase()+'</th>'; });
+  hdr += '</tr></thead>';
+  var bdy = '<tbody>';
+  HOURS.forEach(function(hr){
+    bdy += '<tr><td class="time-cell">'+hr.label+'</td>';
+    DAYS.forEach(function(day){
+      if (takenSlots[day][hr.h]) {
+        bdy += '<td><span class="slot-taken">● TAKEN</span></td>';
+      } else {
+        bdy += '<td><button class="slot-btn" onclick="openBooking(\''+day+'\','+hr.h+',\''+hr.label+'\')">● VACANT</button></td>';
+      }
+    });
+    bdy += '</tr>';
+  });
+  bdy += '</tbody>';
+  document.getElementById('schedTable').innerHTML = hdr + bdy;
+}
+
+function openSchedule() {
+  buildScheduleTable();
+  document.getElementById('schedOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeSchedule() {
+  document.getElementById('schedOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+document.getElementById('schedOverlay').addEventListener('click', function(e) {
+  if (e.target === this) closeSchedule();
+});
+
+// ── BOOKING ──────────────────────────────────────────────
+var PLANS = [
+  {id:'weekly',  label:'Charge Weekly',  price:150,  unit:'VHD/w', desc:'150 VHD billed every week'},
+  {id:'monthly', label:'Charge Monthly', price:600,  unit:'VHD/m', desc:'600 VHD billed every month'},
+  {id:'yearly',  label:'Charge Yearly',  price:7800, unit:'VHD/y', desc:'7,800 VHD billed every year'}
+];
+var selectedPlan = 'weekly';
+var bookingSlot = null;
+
+function openBooking(day, hour, label) {
+  bookingSlot = {day:day, hour:hour, label:label};
+  selectedPlan = 'weekly';
+  renderBooking();
+  document.getElementById('bookOverlay').classList.add('open');
+}
+
+function closeBooking() {
+  document.getElementById('bookOverlay').classList.remove('open');
+}
+
+document.getElementById('bookOverlay').addEventListener('click', function(e) {
+  if (e.target === this) closeBooking();
+});
+
+function selectPlan(id) { selectedPlan = id; renderBooking(); }
+
+function renderBooking() {
+  var slot = bookingSlot;
+  var planHTML = PLANS.map(function(p) {
+    var active = selectedPlan === p.id;
+    return '<div onclick="selectPlan(\''+p.id+'\')" style="cursor:pointer;padding:14px 16px;border-radius:3px;margin-bottom:8px;'+
+      'border:2px solid '+(active?'var(--accent)':'var(--border)')+';'+
+      'background:'+(active?'rgba(200,168,75,.1)':'var(--bg)')+';'+
+      'display:flex;align-items:center;justify-content:space-between">'+
+      '<div style="display:flex;align-items:center;gap:12px">'+
+      '<div style="width:16px;height:16px;border-radius:50%;border:2px solid '+(active?'var(--accent)':'var(--muted)')+';'+
+        'background:'+(active?'var(--accent)':'transparent')+';flex-shrink:0"></div>'+
+      '<div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:18px;color:#fff;letter-spacing:1px">'+p.label+'</div>'+
+      '<div style="font-family:\'Share Tech Mono\',monospace;font-size:11px;color:var(--muted)">'+p.desc+'</div></div></div>'+
+      '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:22px;color:var(--accent);white-space:nowrap">'+p.unit+'</div></div>';
+  }).join('');
+
+  var plan = PLANS.filter(function(p){return p.id===selectedPlan;})[0];
+
+  document.getElementById('bookingBody').innerHTML =
+    discBox() +
+    '<div style="background:var(--bg);border:1px solid var(--border);border-radius:3px;padding:14px 16px;margin-bottom:20px">'+
+    '<div style="font-family:\'Share Tech Mono\',monospace;font-size:10px;color:var(--muted);letter-spacing:2px;margin-bottom:6px">// LESSON SLOT</div>'+
+    '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:22px;color:#fff;letter-spacing:1px">'+slot.day+' — '+slot.label+'</div>'+
+    '<div style="font-family:\'Share Tech Mono\',monospace;font-size:11px;color:var(--accent);margin-top:4px">🥋 Gundo Training with Grandmaster Pingu</div></div>'+
+    '<div class="form-sec"><div class="form-sec-lbl">📅 Billing Plan</div>'+planHTML+'</div>'+
+    paymentFields() +
+    '<button class="btn-place" id="bookBtn">🐧 BOOK FOR '+plan.price.toLocaleString()+' '+plan.unit+'</button>';
+
+  document.getElementById('bookBtn').addEventListener('click', function() {
+    if (!allInputsFilled('#bookingBody input')) {
+      showToast('🐧 Put in some (FAKE) Info, soldier!'); return;
+    }
+    var ref = 'GND-' + Math.floor(Math.random()*90000+10000);
+    takenSlots[slot.day][slot.hour] = true;
+    document.getElementById('bookingBody').innerHTML =
+      '<div class="confirm-wrap"><div class="big">🥋</div>' +
+      '<div class="confirm-title">LESSON BOOKED!</div>' +
+      '<div class="confirm-num">REF #'+ref+'</div>' +
+      '<div class="confirm-sub">NOOT NOOT! Your Gundo lesson has been reserved.<br/>' +
+      '<strong style="color:#fff">'+slot.day+' at '+slot.label+'</strong><br/>' +
+      'Billing: <strong style="color:var(--accent)">'+plan.price.toLocaleString()+' '+plan.unit+'</strong><br/><br/>' +
+      'Grandmaster Pingu will see you then.<br/>Bring your PM 114. Do NOT be late.<br/><br/>' +
+      '<span style="color:var(--red)">Remember: this is fictional. No real transaction occurred.</span></div>' +
+      '<button class="btn-done" onclick="finishBooking()">DONE — NOOT NOOT</button></div>';
+  });
+}
+
+function finishBooking() {
+  closeBooking();
+  buildScheduleTable();
+  showToast('🥋 Gundo lesson booked! NOOT NOOT.');
+}
+
+// ── LOGOS ─────────────────────────────────────────────────
+['navLogo','heroLogo','footerLogo'].forEach(function(id) {
+  var img = document.getElementById(id);
+  var c = document.createElement('canvas'); c.width=100; c.height=100;
+  var ctx = c.getContext('2d');
+  ctx.fillStyle='#1e2022'; ctx.fillRect(0,0,100,100);
+  ctx.font='60px serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText('🐧',50,50);
+  img.src = c.toDataURL();
+});
+
+renderProducts();
+updateCartUI();
+</script>
+</body>
+</html>
