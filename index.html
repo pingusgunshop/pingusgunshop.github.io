@@ -239,7 +239,7 @@ footer{background:#080909;border-top:2px solid var(--border);padding:40px 40px 2
     <a onclick="document.getElementById('categories').scrollIntoView({behavior:'smooth'})">Categories</a>
     <a onclick="document.getElementById('gundo').scrollIntoView({behavior:'smooth'})">Gundo</a>
     <a onclick="document.getElementById('gundo').scrollIntoView({behavior:'smooth'})">NOOTLOCK™ Security</a>
-    <a>About</a>
+    <a href="aboutpingu/index.html">About</a>
   </div>
   <div class="nav-right">
     <div class="nav-currency">Balance: 0.00 VHD</div>
@@ -311,7 +311,7 @@ footer{background:#080909;border-top:2px solid var(--border);padding:40px 40px 2
     <div class="hero-eyebrow">// Official Weapons Supplier of Vorhangia</div>
     <div class="hero-title">PINGU'S<br/><span>GUN SHOP</span></div>
     <div class="hero-sub">BEST HIGH QUALITY GUNS</div>
-    <div class="hero-desc">Ruled by <strong>Pingu</strong>, Gundo Grandmaster &amp; NOOTLOCK™ Inventor. The most feared gunsmith in the Kingdom of Vorhangia. Forged in clay, hardened in battle. <strong></div>
+    <div class="hero-desc">Ruled by <strong>Pingu</strong>, Gundo Grandmaster &amp; NOOTLOCK™ Inventor. The most feared gunsmith in the Kingdom of Vorhangia. Forged in clay, hardened in battle. <strong>NOOT NOOT.</strong></div>
     <div class="hero-btns">
       <button class="btn-primary" onclick="document.getElementById('categories').scrollIntoView({behavior:'smooth'})">SHOP NOW</button>
       <button class="btn-secondary" onclick="document.getElementById('gundo').scrollIntoView({behavior:'smooth'})">LEARN GUNDO</button>
@@ -320,6 +320,7 @@ footer{background:#080909;border-top:2px solid var(--border);padding:40px 40px 2
       <div><div class="stat-num">47+</div><div class="stat-lbl">Firearms</div></div>
       <div><div class="stat-num">3</div><div class="stat-lbl">Gundo Pillars</div></div>
       <div><div class="stat-num">1</div><div class="stat-lbl">True King</div></div>
+      <div><div class="stat-num">∞</div><div class="stat-lbl">NOOTs</div></div>
     </div>
   </div>
 </div>
@@ -427,7 +428,7 @@ function discBox() {
     '<div class="disc-text">THIS IS A FICTIONAL STOREFRONT for the Kingdom of Vorhangia.<br/>' +
     'DO NOT enter your real credit card number.<br/>DO NOT enter your real home address.<br/>' +
     'No purchases are real. No data is collected or processed.<br/>' +
-    'Use made-up details only. — <strong style="color:var(--accent)">VorhangianWebsites / Pingu\'s Gun Shop</strong></div></div>';
+    'Use made-up details only. — <strong style="color:var(--accent)">JacobEArts / Pingu\'s Gun Shop</strong></div></div>';
 }
 
 function paymentFields() {
@@ -554,11 +555,11 @@ function openCheckout() {
       '<div class="confirm-title">ORDER PLACED!</div>' +
       '<div class="confirm-num">ORDER #'+orderNum+'</div>' +
       '<div class="confirm-ship">Estimated Shipping Date: <span>'+shipDate+'</span></div>' +
-      '<div class="confirm-sub">Your fictional order has been received.<br/>' +
+      '<div class="confirm-sub">NOOT NOOT! Your fictional order has been received.<br/>' +
       'The Vorhangian Postal Corps will deliver your weapons<br/>via armoured claymation penguin courier.<br/>' +
       'NOOTLOCK™ security pre-installed on all eligible items.<br/><br/>' +
       '<span style="color:var(--red)">Remember: this is fictional. No real transaction occurred.</span></div>' +
-      '<button class="btn-done" onclick="finishOrder()">DONE</button></div>';
+      '<button class="btn-done" onclick="finishOrder()">DONE — NOOT NOOT</button></div>';
   });
 
   document.getElementById('checkoutOverlay').classList.add('open');
@@ -575,7 +576,7 @@ function finishOrder() {
   document.getElementById('cartSidebar').classList.remove('open');
   document.getElementById('cartOverlay').classList.remove('open');
   document.body.style.overflow = '';
-  showToast('🐧 Order complete!');
+  showToast('🐧 Order complete! NOOT NOOT.');
 }
 
 document.getElementById('checkoutOverlay').addEventListener('click', function(e) {
