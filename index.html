@@ -427,7 +427,7 @@ function discBox() {
     '<div class="disc-text">THIS IS A FICTIONAL STOREFRONT for the Kingdom of Vorhangia.<br/>' +
     'DO NOT enter your real credit card number.<br/>DO NOT enter your real home address.<br/>' +
     'No purchases are real. No data is collected or processed.<br/>' +
-    'Use made-up details only. — <strong style="color:var(--accent)">JacobEArts / Pingu\'s Gun Shop</strong></div></div>';
+    'Use made-up details only. — <strong style="color:var(--accent)">VorhangianWebsites / Pingu\'s Gun Shop</strong></div></div>';
 }
 
 function paymentFields() {
@@ -554,11 +554,11 @@ function openCheckout() {
       '<div class="confirm-title">ORDER PLACED!</div>' +
       '<div class="confirm-num">ORDER #'+orderNum+'</div>' +
       '<div class="confirm-ship">Estimated Shipping Date: <span>'+shipDate+'</span></div>' +
-      '<div class="confirm-sub">NOOT NOOT! Your fictional order has been received.<br/>' +
+      '<div class="confirm-sub">Your fictional order has been received.<br/>' +
       'The Vorhangian Postal Corps will deliver your weapons<br/>via armoured claymation penguin courier.<br/>' +
       'NOOTLOCK™ security pre-installed on all eligible items.<br/><br/>' +
       '<span style="color:var(--red)">Remember: this is fictional. No real transaction occurred.</span></div>' +
-      '<button class="btn-done" onclick="finishOrder()">DONE — NOOT NOOT</button></div>';
+      '<button class="btn-done" onclick="finishOrder()">DONE</button></div>';
   });
 
   document.getElementById('checkoutOverlay').classList.add('open');
@@ -575,7 +575,7 @@ function finishOrder() {
   document.getElementById('cartSidebar').classList.remove('open');
   document.getElementById('cartOverlay').classList.remove('open');
   document.body.style.overflow = '';
-  showToast('🐧 Order complete! NOOT NOOT.');
+  showToast('🐧 Order complete!');
 }
 
 document.getElementById('checkoutOverlay').addEventListener('click', function(e) {
